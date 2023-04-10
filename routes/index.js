@@ -24,8 +24,20 @@ const {
   addClaim,
   updateStatusClaim,
   delClaim,
+  archivedClaim,
 } = require("./claimRoute");
-const { getAllTasks, createTask } = require("./taskRoute");
+const {
+  getTask,
+  getAllTasks,
+  createTask,
+  delTask,
+  delAllTasks,
+  updateStatusTask,
+  updateTask,
+  assignedTo,
+  unassignedFrom,
+} = require("./taskRoute");
+const { isRole, ROLES } = require("../middleware/RoleMiddleware.js");
 
 // middleware
 app.use(express.json());
@@ -37,7 +49,7 @@ require("../middleware/passport")(passport);
 const Authentication = passport.authenticate("jwt", { session: false });
 const Authorization = {
   Project_manajer: isRole(ROLES.PROJECT_MANAGER),
-  EMployee: isRole(ROLES.EMPLOYEE),
+  Employee: isRole(ROLES.EMPLOYEE),
   Client: isRole(ROLES.CLIENT),
 };
 
@@ -46,7 +58,7 @@ app.use("/", router);
 
 router.get("/", (req, res) => res.send("index"));
 
-/* Authentication */
+/*--------------- Authentication ---------------*/
 router.post(
   "/register",
   Authentication,
@@ -55,7 +67,7 @@ router.post(
 );
 router.post("/login", login);
 
-/* User */
+/*--------------- User ---------------*/
 router.get(
   "/users",
   Authentication,
@@ -88,12 +100,7 @@ router.delete(
   Authorization.Project_manajer,
   delUser
 );
-router.put(
-  "/users/updatepassword/:id",
-  Authentication,
-  Authorization.Project_manajer,
-  updatepassword
-);
+router.put("/users/updatepassword/:id", Authentication, updatepassword);
 router.put(
   "/updateuser/:id",
   Authentication,
@@ -101,8 +108,8 @@ router.put(
   updateuser
 );
 
-/* Claim */
-router.post("/claims", Authentication, addClaim);
+/*--------------- Claim ---------------*/
+router.post("/claims", Authentication, Authorization.Client, addClaim);
 router.get(
   "/claims/:id",
   Authentication,
@@ -121,16 +128,69 @@ router.put(
   Authorization.Project_manajer,
   updateStatusClaim
 );
-router.put("/claim/:id", Authentication, updateClaim);
-router.delete(
-  "/claims/:id",
+router.put("/claim/:id", Authentication, Authorization.Client, updateClaim);
+router.delete("/claims/:id", Authentication, Authorization.Client, delClaim);
+router.put(
+  "/claim/archived/:id",
   Authentication,
-  isRole(ROLES.PROJECT_MANAGER, ROLES.CLIENT),
-  delClaim
+  Authorization.Project_manajer,
+  archivedClaim
 );
 
-/* Task */
-router.post("/tasks", Authentication, createTask);
-router.get("/tasks", Authentication, getAllTasks);
+/*--------------- Task ---------------*/
+router.post(
+  "/tasks",
+  Authentication,
+  Authorization.Project_manajer,
+  createTask
+);
+router.get(
+  "/tasks",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  getAllTasks
+);
+router.get(
+  "/tasks/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  getTask
+);
+router.put(
+  "/tasks/status/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  updateStatusTask
+);
+router.put(
+  "/updatetask/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  updateTask
+);
+router.delete(
+  "/tasks/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  delTask
+);
+router.delete(
+  "/tasks",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  delAllTasks
+);
+router.put(
+  "/tasks/assigned/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  assignedTo
+);
+router.put(
+  "/tasks/unassigned/:id",
+  Authentication,
+  isRole(ROLES.PROJECT_MANAGER, ROLES.EMPLOYEE),
+  unassignedFrom
+);
 
 module.exports = router;

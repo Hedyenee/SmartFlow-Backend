@@ -75,6 +75,7 @@ exports.delClaim = async (req, res) => {
   }
 };
 
+/* *************************************** */
 
 exports.updateClaim = async (req, res) => {
   try{
@@ -94,3 +95,21 @@ exports.updateClaim = async (req, res) => {
   }
 };
 
+/* *************************************** */
+
+/*  Archived Claim  */
+exports.archivedClaim = async (req, res) => {
+  try{
+    const claim = await Claim.findOne({ id: req.params._id })
+    if(!claim){
+      return res.status(404).json({ Message: "Claim not exist !"})
+    }
+    await Claim.findByIdAndUpdate(
+      { _id: req.params.id },
+      { $set: { status: "ARCHIVED" }}
+    )
+    return res.status(200).json(claim)
+  }catch(err){
+    res.status(400).json(err)
+  }
+};
