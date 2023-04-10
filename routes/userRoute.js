@@ -1,7 +1,6 @@
 const User = require("../models/userModel");
 const bcrypt = require("bcrypt");
 
-
 /*  Get User by ID  */
 exports.getUser = async (req, res, next) => {
   try {
@@ -43,41 +42,38 @@ exports.delUser = async (req, res) => {
   }
 };
 
-
 exports.updatepassword = async (req, res) => {
-  try{
+  try {
     const salt = await bcrypt.genSalt();
     const user = await User.findById(req.params.id);
-    const  password = await bcrypt.hash(req.body.password, salt);
-    if(!user){
-      return res.status(404).json({ Message: "user not exist !"})
+    const password = await bcrypt.hash(req.body.password, salt);
+    if (!user) {
+      return res.status(404).json({ Message: "user not exist !" });
     }
     await User.findByIdAndUpdate(
       { _id: req.params.id },
-      { $set: { password: password }},
+      { $set: { password: password } },
       { new: true }
-    )
-    return res.status(200).json(user)
-  }catch(err){
-    res.status(400).json(err)
+    );
+    return res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json(err);
   }
 };
 
-
-//getall devs
+//getall employees
 exports.getAlldevs = async (req, res) => {
   try {
-    const users = await User.find({"role":"DEVELOPER"});
+    const users = await User.find({ role: "EMPLOYEE" });
     res.status(201).json({ results: users.length, data: { users } });
   } catch (err) {
     res.status(400).json({ err });
   }
 };
 
-
 exports.getAllClients = async (req, res) => {
   try {
-    const users = await User.find({"role":"CLIENT"});
+    const users = await User.find({ role: "CLIENT" });
     res.status(201).json({ results: users.length, data: { users } });
   } catch (err) {
     res.status(400).json({ err });
@@ -86,32 +82,38 @@ exports.getAllClients = async (req, res) => {
 
 exports.getAllMangers = async (req, res) => {
   try {
-    const users = await User.find({"role":"PROJECT_MANAGER"});
+    const users = await User.find({ role: "PROJECT_MANAGER" });
     res.status(201).json({ results: users.length, data: { users } });
   } catch (err) {
     res.status(400).json({ err });
   }
 };
 
-
 exports.updateuser = async (req, res) => {
-  try{
+  try {
     const salt = await bcrypt.genSalt();
     const user = await User.findById(req.params.id);
-    const  password = await bcrypt.hash(req.body.password, salt);
-    const email = req.body.email ;
+    const password = await bcrypt.hash(req.body.password, salt);
+    const email = req.body.email;
     const username = req.body.username;
     const role = req.body.role;
-    if(!user){
-      return res.status(404).json({ Message: "user not exist !"})
+    if (!user) {
+      return res.status(404).json({ Message: "user not exist !" });
     }
     await User.findByIdAndUpdate(
       { _id: req.params.id },
-      { $set: { password: password  , username: username , role: role, email: email}},
+      {
+        $set: {
+          password: password,
+          username: username,
+          role: role,
+          email: email,
+        },
+      },
       { new: true }
-    )
-    return res.status(200).json(user)
-  }catch(err){
-    res.status(400).json(err)
+    );
+    return res.status(200).json(user);
+  } catch (err) {
+    res.status(400).json(err);
   }
 };

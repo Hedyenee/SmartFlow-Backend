@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema(
       uppercase: true,
       required: [true, "Define your role"],
       enum: {
-        values: ["CLIENT", "DEVELOPER", "PROJECT_MANAGER"],
+        values: ["CLIENT", "EMPLYEE", "PROJECT_MANAGER"],
         message: "Define a correct role",
       },
     },
